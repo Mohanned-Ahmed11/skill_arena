@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <!-- ==========================================================================
+       إعدادات رأس الصفحة والترميز (Head & Meta Settings)
+       ========================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Arena - منصة التحدي والمعرفة للاختبارات التفاعلية</title>
+  <meta name="description" content="منصة Skill Arena للاختبارات التفاعلية السريعة والممتعة في العلوم الأساسية، التكنولوجيا، واللغات. كل كويز 10 دقائق و5 أسئلة لاختبار مهاراتك ومعرفتك.">
+  
+  <!-- أيقونة الموقع (Favicon) -->
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  
+  <!-- ملف التنسيقات الأساسي (CSS Stylesheet) -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- الحاوية الرئيسية للتطبيق بالكامل (Main App Wrapper) -->
+  <div id="app">
+    
+    <!-- ==========================================================================
+         الهيدر وشريط التنقل العلوي (Header & Navigation Bar)
+         يحتوي على لوجو المنصة، شريط البحث السريع، وبروفايل المستخدم النشط
+         ========================================================================== -->
+    <header class="site-header" id="mainHeader" role="banner">
+      <div class="header-inner">
+        
+        <!-- لوجو المنصة بالإنجليزية (Skill Arena Logo) -->
+        <a href="#" class="brand-logo" id="headerBrandLogo" title="Skill Arena الرئيسية" aria-label="Skill Arena الصفحة الرئيسية">
+          <img src="assets/logo.svg" alt="Skill Arena Logo" id="siteLogoImg" width="180" height="46">
+        </a>
+        <!-- نهاية اللوجو -->
+
+        <!-- شريط البحث الشامل في المواد والكويزات (Global Search Bar) -->
+        <div class="header-search" id="headerSearchContainer" role="search">
+          <div class="search-input-wrap">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input type="search" id="globalSearchInput" placeholder="ابحث عن مادة أو كويز (مثال: فيزياء، برمجة، لغات...)" autocomplete="off" aria-label="البحث عن مادة أو كويز">
+          </div>
+          <!-- قائمة النتائج المنسدلة للبحث الفوري -->
+          <div class="search-results-dropdown" id="searchResultsDropdown" role="listbox"></div>
+        </div>
+        <!-- نهاية شريط البحث -->
+
+        <!-- منطقة تفاعل وبروفايل المستخدم في الهيدر (User Actions & Profile) -->
+        <div class="header-actions">
+          
+          <!-- بطاقة البروفايل السريع للمستخدم المسجل (Active User Profile Chip) -->
+          <div class="user-profile-badge" id="headerUserBadge" title="إعدادات الحساب" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="صورة المستخدم الشخصية" class="user-avatar dynamic-user-avatar">
+            <div class="user-info-text">
+              <span class="user-name dynamic-user-name">أحمد علي</span>
+              <span class="user-role dynamic-user-role">طالب متميز</span>
+            </div>
+            <span style="font-size: 0.75rem; color: var(--text-muted); margin-right: 0.25rem;" aria-hidden="true">▼</span>
+          </div>
+
+          <!-- القائمة المنسدلة للبروفايل (User Dropdown Menu) -->
+          <nav class="user-dropdown" id="userDropdownMenu" aria-label="قائمة المستخدم">
+            <div class="dropdown-item" onclick="App.navigateTo('dashboard')" role="menuitem" tabindex="0">
+              <span aria-hidden="true">🏠</span> لوحة التحكم
+            </div>
+            <div class="dropdown-item" onclick="App.openSubjectModal('physics')" role="menuitem" tabindex="0">
+              <span aria-hidden="true">⚛️</span> كويز الفيزياء
+            </div>
+            <div class="dropdown-item" onclick="App.openSubjectModal('programming')" role="menuitem" tabindex="0">
+              <span aria-hidden="true">💻</span> كويز البرمجة
+            </div>
+            <hr style="border: none; border-top: 1px solid var(--border-light); margin: 0.4rem 0;">
+            <div class="dropdown-item danger btn-logout-action" role="menuitem" tabindex="0">
+              <span aria-hidden="true">🚪</span> تسجيل الخروج
+            </div>
+          </nav>
+
+          <!-- زر تسجيل الدخول (يظهر فقط في حالة تسجيل الخروج) -->
+          <button type="button" class="btn-header-auth" id="headerAuthBtn" style="display: none;">
+            تسجيل الدخول
+          </button>
+        </div>
+        <!-- نهاية منطقة البروفايل -->
+
+      </div>
+    </header>
+    <!-- نهاية الهيدر العلوي -->
+
+
+    <!-- ==========================================================================
+         المحتوى الرئيسي للموقع (Main Content Views)
+         يضم الشاشات التفاعلية: شاشة الدخول، لوحة التحكم، ساحة الكويز، والنتائج
+         ========================================================================== -->
+    <main id="mainAppContent" role="main">
+
+      <!-- ======================================================================
+           الشاشة الأولى: واجهة الترحيب وتسجيل الدخول (Welcome & Authentication)
+           تتكون من قسمين: بطاقة التعريف بالمنصة + بطاقة تسجيل الدخول وإنشاء الحساب
+           ====================================================================== -->
+      <section class="view-section active" id="view_auth" aria-label="تسجيل الدخول والترحيب">
+        <div class="auth-hero-container">
+          <div class="auth-split-card">
+            
+            <!-- القسم الأيمن في البطاقة: الجانب التعريفي والمزايا (Hero Intro Panel) -->
+            <article class="auth-intro-side">
+              <div class="intro-badge">
+                <span aria-hidden="true">✨</span> الجيل الجديد من منصات الاختبارات
+              </div>
+              <h1 class="auth-intro-title">
+                مرحباً بك في عالم <span>التحدي والمعرفة!</span>
+              </h1>
+              <p class="auth-intro-desc">
+                سهل خطوات للبدء في اختباراتك واكتشاف نتائجك والانضمام إلى لوحة المتصدرين. ابدأ رحلتك التعليمية الممتعة معنا الآن.
+              </p>
+
+              <!-- قائمة مزايا المنصة الرئيسية -->
+              <ul class="intro-features-list">
+                <li class="intro-feature-item">
+                  <span class="feature-check-icon" aria-hidden="true">✓</span>
+                  <span>كويزات محددة بوقت <strong>10 دقائق</strong> و <strong>5 أسئلة مركزة</strong> لكل مادة.</span>
+                </li>
+                <li class="intro-feature-item">
+                  <span class="feature-check-icon" aria-hidden="true">✓</span>
+                  <span>تصحيح فوري مع <strong>شرح تفصيلي</strong> ومبسّط لكل إجابة.</span>
+                </li>
+                <li class="intro-feature-item">
+                  <span class="feature-check-icon" aria-hidden="true">✓</span>
+                  <span>تغطية شاملة لمجالات: <strong>العلوم، التكنولوجيا، واللغات</strong>.</span>
+                </li>
+              </ul>
+
+              <!-- إحصائيات سريعة عن المنصة -->
+              <div class="intro-stats-row">
+                <div>
+                  <div class="stat-item-number">+10,000</div>
+                  <div class="stat-item-label">طالب ومنافس نشط</div>
+                </div>
+                <div>
+                  <div class="stat-item-number">+500</div>
+                  <div class="stat-item-label">تحدي وسؤال علمي</div>
+                </div>
+                <div>
+                  <div class="stat-item-number">100%</div>
+                  <div class="stat-item-label">تجربة تفاعلية مجانية</div>
+                </div>
+              </div>
+            </article>
+            <!-- نهاية القسم التعريفي -->
+
+            <!-- القسم الأيسر في البطاقة: نموذج تسجيل الدخول وإنشاء الحساب (Auth Form) -->
+            <article class="auth-form-side">
+              
+              <!-- تبويبات التبديل بين تسجيل الدخول وإنشاء الحساب -->
+              <div class="auth-tabs" role="tablist">
+                <button type="button" class="auth-tab-btn active" id="tabBtnLogin" role="tab" aria-selected="true">تسجيل الدخول</button>
+                <button type="button" class="auth-tab-btn" id="tabBtnSignup" role="tab" aria-selected="false">إنشاء حساب</button>
+              </div>
+
+              <!-- نموذج الإدخال (Form) -->
+              <form class="auth-form" id="authMainForm" novalidate>
+                
+                <!-- حقل اسم المستخدم (يظهر فقط في وضع إنشاء حساب جديد) -->
+                <div class="form-group" id="authNameGroup" style="display: none;">
+                  <label class="form-label" for="authName">
+                    <span aria-hidden="true">👤</span> الاسم الكامل
+                  </label>
+                  <div class="input-with-icon">
+                    <span class="input-icon" aria-hidden="true">👤</span>
+                    <input type="text" id="authName" placeholder="أحمد علي" autocomplete="name">
+                  </div>
+                </div>
+
+                <!-- حقل البريد الإلكتروني (Email Input) -->
+                <div class="form-group">
+                  <label class="form-label" for="authEmail">
+                    <span aria-hidden="true">✉️</span> البريد الإلكتروني
+                  </label>
+                  <div class="input-with-icon">
+                    <span class="input-icon" aria-hidden="true">✉️</span>
+                    <input type="email" id="authEmail" placeholder="example@gmail.com" value="example@gmail.com" required autocomplete="email">
+                  </div>
+                </div>
+
+                <!-- حقل كلمة المرور (Password Input) -->
+                <div class="form-group">
+                  <label class="form-label" for="authPassword">
+                    <span aria-hidden="true">🔒</span> كلمة المرور
+                  </label>
+                  <div class="input-with-icon">
+                    <span class="input-icon" aria-hidden="true">🔒</span>
+                    <input type="password" id="authPassword" placeholder="password" value="" required autocomplete="current-password">
+                    <span class="password-toggle" id="pwdToggleBtn" title="إظهار/إخفاء كلمة المرور" role="button" tabindex="0">🔒</span>
+                  </div>
+                </div>
+
+                <!-- خيارات إضافية: تذكرني ونسيان كلمة المرور -->
+                <div class="form-extra-row">
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: var(--text-dark-muted);">
+                    <input type="checkbox" checked style="accent-color: var(--accent-teal);">
+                    <span>تذكرني على هذا الجهاز</span>
+                  </label>
+                  <span class="forgot-link" role="button" tabindex="0" onclick="App.showToast('يمكنك استخدام الحساب التجريبي أو أي بريد إلكتروني للدخول المباشر', 'info')">هل نسيت كلمة المرور؟</span>
+                </div>
+
+                <!-- زر الإرسال الرئيسي (Submit Button) -->
+                <button type="submit" class="btn-primary-auth" id="authSubmitBtn">
+                  تسجيل الدخول
+                </button>
+
+                <!-- رابط التبديل بين الدخول والتسجيل -->
+                <div class="auth-switch-text">
+                  <span id="authSwitchPrompt">ليس لديك حساب؟ </span>
+                  <a href="#" class="auth-switch-link" id="authSwitchLink">إنشاء حساب جديد</a>
+                </div>
+
+                <div class="auth-divider" aria-hidden="true">أو الدخول السريع عبر</div>
+
+                <!-- أزرار الدخول السريع عبر منصات التواصل (Social Login) -->
+                <div class="social-auth-grid">
+                  <button type="button" class="btn-social google" id="btnGoogleLogin">
+                    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                    <span>تسجيل الدخول باستخدام Google</span>
+                  </button>
+                  <button type="button" class="btn-social github" id="btnGithubLogin">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                    </svg>
+                    <span>تسجيل الدخول باستخدام GitHub</span>
+                  </button>
+                </div>
+
+              </form>
+            </article>
+            <!-- نهاية نموذج الدخول -->
+
+          </div>
+        </div>
+      </section>
+      <!-- نهاية الشاشة الأولى (شاشة الدخول) -->
+
+
+      <!-- ======================================================================
+           الشاشة الثانية: لوحة التحكم الرئيسية (Main Dashboard)
+           تتكون من شريط جانبي للتنقل + بطاقة ترحيب وإحصائيات + بطاقات المسارات الثلاث
+           ====================================================================== -->
+      <section class="view-section" id="view_dashboard" aria-label="لوحة التحكم الرئيسية">
+        <div class="dashboard-layout">
+          
+          <!-- الشريط الجانبي للتنقل بين الأقسام (Dashboard Sidebar) -->
+          <aside class="dashboard-sidebar" aria-label="شريط التنقل الجانبي">
+            
+            <!-- بطاقة البروفايل المصغرة في الشريط الجانبي -->
+            <div class="sidebar-profile-card">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="صورة المستخدم" class="user-avatar dynamic-user-avatar">
+              <div class="user-info-text">
+                <span class="user-name dynamic-user-name">أحمد علي</span>
+                <span class="user-role dynamic-user-role">طالب متميز</span>
+              </div>
+            </div>
+
+            <!-- قائمة روابط الشريط الجانبي -->
+            <nav aria-label="قائمة المواد والأقسام">
+              <ul class="sidebar-menu">
+                <li class="sidebar-menu-category">القائمة الرئيسية</li>
+                
+                <li class="sidebar-menu-link active" data-view="dashboard" role="button" tabindex="0">
+                  <div class="sidebar-link-content">
+                    <span aria-hidden="true">🏠</span>
+                    <span>الرئيسية</span>
+                  </div>
+                </li>
+
+                <li class="sidebar-menu-category">الأقسام والمواد</li>
+
+                <li class="sidebar-menu-link" data-subject="physics" role="button" tabindex="0">
+                  <div class="sidebar-link-content">
+                    <span aria-hidden="true">⚛️</span>
+                    <span>الفيزياء</span>
+                  </div>
+                  <span class="sidebar-badge-pill">5 أسئلة</span>
+                </li>
+
+                <li class="sidebar-menu-link" data-subject="math" role="button" tabindex="0">
+                  <div class="sidebar-link-content">
+                    <span aria-hidden="true">📐</span>
+                    <span>الرياضيات</span>
+                  </div>
+                  <span class="sidebar-badge-pill">5 أسئلة</span>
+                </li>
+
+                <li class="sidebar-menu-link" data-subject="programming" role="button" tabindex="0">
+                  <div class="sidebar-link-content">
+                    <span aria-hidden="true">💻</span>
+                    <span>البرمجة</span>
+                  </div>
+                  <span class="sidebar-badge-pill">5 أسئلة</span>
+                </li>
+
+                <li class="sidebar-menu-link" data-subject="cybersecurity" role="button" tabindex="0">
+                  <div class="sidebar-link-content">
+                    <span aria-hidden="true">🛡️</span>
+                    <span>الأمن السيبراني</span>
+                  </div>
+                  <span class="sidebar-badge-pill">5 أسئلة</span>
+                </li>
+
+                <li class="sidebar-menu-link" data-subject="arabic" role="button" tabindex="0">
+                  <div class="sidebar-link-content">
+                    <span aria-hidden="true">✒️</span>
+                    <span>اللغة العربية</span>
+                  </div>
+                  <span class="sidebar-badge-pill">5 أسئلة</span>
+                </li>
+
+                <li class="sidebar-menu-link" data-subject="english" role="button" tabindex="0">
+                  <div class="sidebar-link-content">
+                    <span aria-hidden="true">🌐</span>
+                    <span>اللغة الإنجليزية</span>
+                  </div>
+                  <span class="sidebar-badge-pill">5 أسئلة</span>
+                </li>
+
+                <li class="sidebar-menu-category">الحساب</li>
+                
+                <li class="sidebar-menu-link btn-logout-action" role="button" tabindex="0">
+                  <div class="sidebar-link-content" style="color: var(--color-danger);">
+                    <span aria-hidden="true">🚪</span>
+                    <span>تسجيل الخروج</span>
+                  </div>
+                </li>
+              </ul>
+            </nav>
+          </aside>
+          <!-- نهاية الشريط الجانبي -->
+
+          <!-- المساحة الرئيسية للوحة التحكم (Dashboard Main Content) -->
+          <div class="dashboard-main">
+            
+            <!-- بطاقة الترحيب العريضة وإحصائيات المستخدم (Welcome & Quick Stats Card) -->
+            <header class="dashboard-welcome-card">
+              <div>
+                <h2 class="welcome-title">
+                  مرحباً بك يا <span class="dynamic-user-name">أحمد علي</span>! 👋
+                </h2>
+                <p class="welcome-subtitle">
+                  اختر المادة التي ترغب في خوض التحدي بها اليوم. كل كويز مدته 10 دقائق بالضبط و 5 أسئلة.
+                </p>
+              </div>
+              
+              <!-- إحصائيات سريعة للإنجازات -->
+              <div class="quick-stats-pills">
+                <div class="quick-stat-pill">
+                  <div class="quick-stat-val" id="statTotalQuizzesCount">0</div>
+                  <div class="quick-stat-lbl">كويزات مكتملة</div>
+                </div>
+                <div class="quick-stat-pill">
+                  <div class="quick-stat-val" id="statAvgScore">100%</div>
+                  <div class="quick-stat-lbl">معدل النجاح</div>
+                </div>
+              </div>
+            </header>
+            <!-- نهاية بطاقة الترحيب -->
+
+            <!-- الحاوية البيضاء الناصعة الفاخرة للبطاقات الثلاث (Categories Container) -->
+            <section class="dashboard-cards-container" aria-label="المسارات المعرفية">
+              <header class="container-header-row">
+                <div>
+                  <h2 class="section-main-title">مسارات التحديات المتاحة</h2>
+                  <p class="section-main-subtitle">اختر المسار المعرفي ثم ابدأ الاختبار مباشرة</p>
+                </div>
+              </header>
+
+              <!-- شبكة البطاقات الثلاث الرئيسية (العلوم، اللغات، التكنولوجيا) -->
+              <div class="categories-triple-grid" id="dashboardCategoriesGrid">
+                <!-- يتم توليد البطاقات الثلاث ديناميكياً بواسطة JavaScript -->
+              </div>
+            </section>
+            <!-- نهاية حاوية المسارات -->
+
+          </div>
+          <!-- نهاية مساحة لوحة التحكم الرئيسية -->
+
+        </div>
+      </section>
+      <!-- نهاية الشاشة الثانية (لوحة التحكم) -->
+
+
+      <!-- ======================================================================
+           الشاشة المنبثقة: مستكشف المسارات والمواد (Track & Subject Explorer Modal)
+           تفتح عند النقر على "استكشف المواد" لاستعراض كل مواد المسار دون فرض مادة
+           ====================================================================== -->
+      <aside class="modal-overlay" id="trackExplorerModalOverlay" role="dialog" aria-modal="true" aria-labelledby="explorerModalTitle">
+        <div class="explorer-modal-card">
+          <button type="button" class="modal-close-btn" id="explorerModalCloseBtn" title="إغلاق النافذة" aria-label="إغلاق">✕</button>
+
+          <header class="explorer-header">
+            <div class="explorer-badge">
+              <span aria-hidden="true">✨</span> مستكشف المسارات والمواد
+            </div>
+            <h2 class="explorer-title" id="explorerModalTitle">استكشف مواد وتحديات المنصة</h2>
+            <p class="explorer-subtitle" id="explorerModalSubtitle">
+              تصفح جميع المواد المتاحة واختر التحدي الذي يناسبك. كل كويز مدته 10 دقائق بالضبط و 5 أسئلة مع تصحيح وشرح فوري.
+            </p>
+          </header>
+
+          <!-- أزرار تبويب وتصفية المواد حسب القسم (Filter Tabs) -->
+          <nav class="explorer-tabs-bar" id="explorerTabsBar" aria-label="تصفية مسارات المواد">
+            <button type="button" class="explorer-tab-btn active" data-cat="all">
+              <span aria-hidden="true">🌟</span> الكل
+            </button>
+            <button type="button" class="explorer-tab-btn" data-cat="basic_sciences">
+              <span aria-hidden="true">⚛️</span> العلوم الأساسية
+            </button>
+            <button type="button" class="explorer-tab-btn" data-cat="technology">
+              <span aria-hidden="true">💻</span> التكنولوجيا
+            </button>
+            <button type="button" class="explorer-tab-btn" data-cat="languages">
+              <span aria-hidden="true">🌐</span> اللغات
+            </button>
+          </nav>
+
+          <!-- شبكة بطاقات المواد داخل المستكشف (Subject Cards Grid) -->
+          <div class="explorer-cards-grid" id="explorerCardsGrid">
+            <!-- يتم توليد البطاقات ديناميكياً بواسطة JavaScript -->
+          </div>
+
+        </div>
+      </aside>
+      <!-- نهاية نافذة المستكشف -->
+
+
+      <!-- ======================================================================
+           الشاشة المنبثقة: تفاصيل وقواعد الاختبار (Subject Rules Modal)
+           توضح مدة الكويز (10 دقائق) وعدد الأسئلة (5) وقواعد النجاح قبل البدء
+           ====================================================================== -->
+      <aside class="modal-overlay" id="subjectModalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalSubjectTitle">
+        <div class="modal-card">
+          <button type="button" class="modal-close-btn" id="modalCloseBtn" title="إغلاق النافذة" aria-label="إغلاق">✕</button>
+
+          <!-- رأس بطاقة المادة -->
+          <header class="modal-subject-header">
+            <div class="modal-subject-icon" id="modalSubjectIcon">⚛️</div>
+            <div class="modal-subject-info">
+              <h3 id="modalSubjectTitle">الفيزياء (Physics)</h3>
+              <p id="modalSubjectDesc">الميكانيكا الكلاسيكية وقوانين الحركة والطاقة</p>
+            </div>
+          </header>
+
+          <!-- إحصائيات ومواصفات الاختبار -->
+          <div class="quiz-specs-grid">
+            <div class="quiz-spec-item">
+              <div class="quiz-spec-icon" aria-hidden="true">⏱️</div>
+              <div class="quiz-spec-val">10:00</div>
+              <div class="quiz-spec-lbl">مدة الاختبار (دقيقة)</div>
+            </div>
+            <div class="quiz-spec-item">
+              <div class="quiz-spec-icon" aria-hidden="true">❓</div>
+              <div class="quiz-spec-val">5</div>
+              <div class="quiz-spec-lbl">عدد الأسئلة</div>
+            </div>
+            <div class="quiz-spec-item">
+              <div class="quiz-spec-icon" aria-hidden="true">🎯</div>
+              <div class="quiz-spec-val">60%</div>
+              <div class="quiz-spec-lbl">درجة الاجتياز</div>
+            </div>
+          </div>
+
+          <!-- تعليمات وقواعد خوض الاختبار -->
+          <div class="modal-instructions-list">
+            <div>📌 <strong>تعليمات الاختبار:</strong></div>
+            <div>• المؤقت يبدأ فور النقر على زر البدء ويتم التسليم التلقائي عند انتهاء الـ 10 دقائق.</div>
+            <div>• يمكنك التنقل بحرية بين الأسئلة الخمسة وتعديل إجاباتك قبل التسليم.</div>
+            <div>• ستشاهد تحليلاً وشرحاً فورياً لجميع الإجابات الصحيحة بعد إنهاء الكويز.</div>
+          </div>
+
+          <!-- زر بدء الكويز الفعلي -->
+          <button type="button" class="btn-start-quiz-now" id="btnModalStartQuiz">
+            🚀 ابدأ الكويز الآن (10 دقائق)
+          </button>
+        </div>
+      </aside>
+      <!-- نهاية نافذة تفاصيل الاختبار -->
+
+
+      <!-- ======================================================================
+           الشاشة الثالثة: ساحة الكويز التفاعلي المباشر (Live Quiz Arena)
+           تتكون من: شريط المسار + بطاقة السؤال البيضاء الناصعة + لوحة المؤقت الدائري
+           ====================================================================== -->
+      <section class="view-section" id="view_quiz" aria-label="ساحة الكويز المباشر">
+        
+        <!-- الشريط العلوي لساحة الكويز وزر الخروج -->
+        <header class="quiz-arena-header">
+          <div class="quiz-breadcrumb">
+            <span>ساحة الاختبارات:</span>
+            <span class="badge-topic" id="quizHeaderCategoryTitle">Quiz Arena: Physics Fundamentals</span>
+            <span style="color: var(--text-muted);" aria-hidden="true">/</span>
+            <span id="quizHeaderSubjectTitle" style="color: var(--accent-cyan);">الفيزياء</span>
+          </div>
+
+          <button type="button" class="btn-icon" id="btnQuitQuiz" title="مغادرة الاختبار" aria-label="الخروج من الاختبار">
+            ✕
+          </button>
+        </header>
+
+        <!-- التوزيع الداخلي لساحة الكويز -->
+        <div class="quiz-arena-layout">
+          
+          <!-- الشريط الجانبي الأيمن للكويز (معلومات الجلسة) -->
+          <aside class="quiz-sidebar" aria-label="معلومات جلسة الكويز">
+            <div class="sidebar-profile-card">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="صورة المتسابق" class="user-avatar dynamic-user-avatar">
+              <div class="user-info-text">
+                <span class="user-name dynamic-user-name">أحمد علي</span>
+                <span class="user-role" style="color: var(--accent-cyan);">في الاختبار الآن 🔥</span>
+              </div>
+            </div>
+
+            <ul class="sidebar-menu">
+              <li class="sidebar-menu-category">المادة النشطة</li>
+              <li class="sidebar-menu-link active">
+                <div class="sidebar-link-content">
+                  <span aria-hidden="true">📝</span>
+                  <span id="quizSidebarSubjectName">جلسة الكويز الحالية</span>
+                </div>
+              </li>
+            </ul>
+          </aside>
+          <!-- نهاية شريط الكويز الجانبي -->
+
+          <!-- بطاقة السؤال الرئيسية البيضاء الفاخرة (Question Card) -->
+          <article class="quiz-question-card" aria-live="polite">
+            
+            <header class="question-header-meta">
+              <span class="question-pill-tag" id="quizQuestionTag">السؤال 1 من 5</span>
+              <span style="font-size: 0.85rem; color: var(--text-dark-muted);">درجة السؤال: 1 نقطة</span>
+            </header>
+
+            <h2 class="question-title-text" id="quizQuestionTitle">
+              أي مما يلي يمثل الصيغة الرياضية لقانون نيوتن الثاني في الحركة؟
+            </h2>
+
+            <!-- خيارات الإجابة الأربعة التفاعلية (Options List) -->
+            <div class="options-list" id="quizOptionsContainer" role="radiogroup" aria-label="خيارات الإجابة">
+              <!-- يتم توليد خيارات السؤال الأربعة ديناميكياً بواسطة JavaScript -->
+            </div>
+
+            <!-- شريط أزرار التنقل وتسليم الاختبار في الأسفل -->
+            <footer class="quiz-actions-bar">
+              <button type="button" class="btn-quiz-nav prev" id="btnQuizPrev" disabled aria-label="السؤال السابق">
+                <span aria-hidden="true">➡️</span> السابق
+              </button>
+
+              <button type="button" class="btn-quiz-nav next" id="btnQuizNext" aria-label="السؤال التالي">
+                التالي <span aria-hidden="true">⬅️</span>
+              </button>
+
+              <button type="button" class="btn-quiz-submit" id="btnQuizSubmit" style="display: none;" aria-label="إنهاء الاختبار وتأكيد الإجابات">
+                إنهاء الاختبار وتأكيد الإجابات ✅
+              </button>
+            </footer>
+
+          </article>
+          <!-- نهاية بطاقة السؤال -->
+
+          <!-- لوحة متابعة التقدم والمؤقت الدائري الذكي 10 دقائق (Progress & Timer Pane) -->
+          <aside class="quiz-progress-pane" aria-label="تقدم الاختبار والمؤقت">
+            <h3 class="progress-pane-title">Quiz Progress</h3>
+
+            <!-- المؤقت الدائري التنازلي بدقة 10:00 دقائق (Circular SVG Timer) -->
+            <div class="circular-timer-wrap">
+              <svg class="timer-svg" viewBox="0 0 160 160" aria-hidden="true">
+                <circle class="timer-bg-circle" cx="80" cy="80" r="70"></circle>
+                <circle class="timer-progress-circle" id="timerProgressCircle" cx="80" cy="80" r="70"></circle>
+              </svg>
+              
+              <div class="timer-center-text">
+                <time class="timer-digits" id="quizTimerDisplay" aria-live="off">10:00</time>
+                <div class="timer-label">Minutes</div>
+              </div>
+            </div>
+
+            <!-- دوائر أرقام الأسئلة للتنقل السريع (1، 2، 3، 4، 5) -->
+            <div class="question-pills-row" id="quizQuestionPills" role="navigation" aria-label="التنقل بين أرقام الأسئلة">
+              <!-- أزرار أرقام الأسئلة تولد ديناميكياً -->
+            </div>
+
+            <div class="quiz-progress-text" id="quizProgressCount">
+              سؤال 1 من 5
+            </div>
+          </aside>
+          <!-- نهاية لوحة التقدم والمؤقت -->
+
+        </div>
+      </section>
+      <!-- نهاية الشاشة الثالثة (الكويز المباشر) -->
+
+
+      <!-- ======================================================================
+           الشاشة الرابعة: لوحة النتائج والمراجعة التفصيلية (Results & Review)
+           تتضمن بطاقة النتيجة والشارة التقديرية + مراجعة كاملة لجميع الأسئلة بالشرح
+           ====================================================================== -->
+      <section class="view-section" id="view_results" aria-label="نتائج ومراجعة الاختبار">
+        <div class="results-container">
+          
+          <!-- بطاقة ملخص النتيجة والدرجة النهائية (Score Summary Card) -->
+          <article class="results-summary-card">
+            <div class="results-badge-icon" id="resultBadgeIcon" aria-hidden="true">🏆</div>
+            <div class="results-score-display" id="resultScoreValue">
+              5 <span>/ 5</span>
+            </div>
+            <p class="results-grade-message" id="resultGradeMessage">
+              أداء أسطوري ممتاز! لقد أجبت على جميع الأسئلة بشكل صحيح 🌟
+            </p>
+
+            <!-- مقاييس الأداء: النسبة، الوقت المستغرق، والإجابات الصحيحة -->
+            <div class="results-metrics-grid">
+              <div class="metric-item-box">
+                <div class="metric-val" id="metricScoreText">100%</div>
+                <div class="metric-lbl">النسبة المئوية</div>
+              </div>
+              <div class="metric-item-box">
+                <div class="metric-val" id="metricTimeText">3 دقائق</div>
+                <div class="metric-lbl">الوقت المستغرق</div>
+              </div>
+              <div class="metric-item-box">
+                <div class="metric-val" id="metricAccuracyText">5 إجابات</div>
+                <div class="metric-lbl">الإجابات الصحيحة</div>
+              </div>
+            </div>
+
+            <!-- أزرار الإجراءات بعد الكويز (إعادة المحاولة أو العودة للرئيسية) -->
+            <div class="results-actions-row">
+              <button type="button" class="btn-primary-auth" id="btnRetakeQuiz" style="padding: 0.8rem 1.8rem;">
+                🔄 إعادة الاختبار
+              </button>
+              <button type="button" class="btn-explore-category" id="btnBackHomeFromResults" style="padding: 0.8rem 1.8rem; width: auto;">
+                🏠 العودة للرئيسية
+              </button>
+            </div>
+          </article>
+          <!-- نهاية بطاقة النتيجة -->
+
+          <!-- قسم المراجعة التفصيلية والشرح العلمي لكل سؤال (Detailed Answers Review) -->
+          <section aria-label="مراجعة وتوضيح الإجابات">
+            <h3 class="review-section-title">
+              <span aria-hidden="true">📋</span> مراجعة وتوضيح إجابات الأسئلة
+            </h3>
+            <div class="review-questions-list" id="resultsReviewList">
+              <!-- يتم توليد مراجعة الأسئلة الخمسة مع الشرح والتوضيح ديناميكياً بواسطة JavaScript -->
+            </div>
+          </section>
+          <!-- نهاية قسم المراجعة -->
+
+        </div>
+      </section>
+      <!-- نهاية الشاشة الرابعة (النتائج) -->
+
+    </main>
+    <!-- نهاية المحتوى الرئيسي -->
+
+
+    <!-- ==========================================================================
+         الفوتر وتذييل الصفحة (Site Footer)
+         يحتوي على لوجو المنصة، وصفها، روابط سريعة، الأقسام، وحقوق الملكية
+         ========================================================================== -->
+    <footer class="site-footer" role="contentinfo">
+      <div class="footer-inner">
+        
+        <!-- العمود الأول: معلومات منصة Skill Arena -->
+        <div class="footer-brand">
+          <a href="#" class="brand-logo" title="Skill Arena">
+            <img src="assets/logo.svg" alt="Skill Arena" width="180" height="46">
+          </a>
+          <p>
+            منصة Skill Arena التعليمية التفاعلية. تحديات معرفية سريعة ودقيقة في العلوم والرياضيات والبرمجة واللغات لتطوير مهاراتك اليومية.
+          </p>
+        </div>
+
+        <!-- العمود الثاني: روابط سريعة للكويزات -->
+        <nav class="footer-col" aria-label="روابط سريعة">
+          <h4>روابط سريعة</h4>
+          <ul class="footer-links-list">
+            <li><a href="#" onclick="App.navigateTo('dashboard')">الرئيسية</a></li>
+            <li><a href="#" onclick="App.openSubjectModal('physics')">كويز الفيزياء</a></li>
+            <li><a href="#" onclick="App.openSubjectModal('math')">كويز الرياضيات</a></li>
+            <li><a href="#" onclick="App.openSubjectModal('programming')">كويز البرمجة</a></li>
+          </ul>
+        </nav>
+
+        <!-- العمود الثالث: المسارات التعليمية -->
+        <nav class="footer-col" aria-label="المسارات التعليمية">
+          <h4>المسارات التعليمية</h4>
+          <ul class="footer-links-list">
+            <li><a href="#" onclick="App.openCategoryModal('basic_sciences')">العلوم الأساسية</a></li>
+            <li><a href="#" onclick="App.openCategoryModal('technology')">التكنولوجيا والبرمجة</a></li>
+            <li><a href="#" onclick="App.openCategoryModal('languages')">اللغات والأدب</a></li>
+            <li><a href="#" onclick="App.openSubjectModal('cybersecurity')">الأمن السيبراني</a></li>
+          </ul>
+        </nav>
+
+        <!-- العمود الرابع: مواصفات ومزايا نظام الاختبارات -->
+        <div class="footer-col">
+          <h4>نظام الاختبارات</h4>
+          <ul class="footer-links-list">
+            <li><span>⏱️ مؤقت 10 دقائق لكل كويز</span></li>
+            <li><span>🎯 5 أسئلة مختارة بعناية</span></li>
+            <li><span>💡 شروحات تفصيلية فورية</span></li>
+            <li><span>🏆 شهادات وشارات التميز</span></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- الشريط السفلي لحقوق الملكية (Footer Bottom Bar) -->
+      <div class="footer-bottom-bar">
+        <div>جميع الحقوق محفوظة © 2026 <strong>Skill Arena</strong></div>
+      </div>
+    </footer>
+    <!-- نهاية الفوتر -->
+
+
+    <!-- حاوية التنبيهات المنبثقة التفاعلية (Toast Notifications Container) -->
+    <div class="toast-container" id="toastContainer" aria-live="assertive" aria-atomic="true"></div>
+
+  </div>
+  <!-- نهاية الحاوية الرئيسية للتطبيق -->
+
+  <!-- ==========================================================================
+       ملفات الجافاسكريبت والمنطق البرمجي (JavaScript Modules)
+       ========================================================================== -->
+  <!-- 1. قاعدة البيانات وبنك الأسئلة -->
+  <script src="js/database.js"></script>
+  <!-- 2. نظام تسجيل الدخول والمصادقة -->
+  <script src="js/auth.js"></script>
+  <!-- 3. محرك الكويزات والمؤقت الدائري -->
+  <script src="js/quiz.js"></script>
+  <!-- 4. المتحكم الرئيسي في التطبيق والتنقل -->
+  <script src="js/app.js"></script>
+</body>
+</html>
